@@ -1,0 +1,6 @@
+{
+  "name": "대진전자통신고 시간표 서비스 PRD",
+  "description": "나이스(NEIS) 오픈API(고등학교시간표 hisTimetable)를 활용한 대진전자통신고등학교 학생 맞춤형 시간표 서비스 제품요구사항정의서(PRD) 및 실시간 인터랙티브 플랫폼",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
