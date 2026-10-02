@@ -52,7 +52,7 @@ export const DAEJIN_DEPARTMENTS: Department[] = [
     id: 'ai-sw',
     name: 'AI소프트웨어과',
     codeName: 'AI소프트웨어과',
-    description: '프로그래밍 언어 응용, 컴퓨터 구조, AI 및 디지털 논리회로 (4~5반, 3학년 구 컴퓨터소프트웨어과)',
+    description: '프로그래밍 언어 응용, 컴퓨터 구조, AI 및 디지털 논리회로 (1·2학년 4~5반 / 3학년은 컴퓨터소프트웨어과)',
     classes: [4, 5],
   },
   {
@@ -70,6 +70,53 @@ export const DAEJIN_DEPARTMENTS: Department[] = [
     classes: [9, 10],
   },
 ];
+
+/**
+ * 학년별 학과 목록 (3학년 4~5반은 컴퓨터소프트웨어과, 1·2학년 4~5반은 AI소프트웨어과)
+ */
+export function getDepartmentsForGrade(grade: number): Department[] {
+  const isGrade3 = grade === 3;
+  return [
+    {
+      id: 'elec',
+      name: '전기전자과',
+      codeName: '전기전자과',
+      description: '하드웨어 회로 설계, 하드웨어 측정분석 및 전자 제작 실습 (1~3반)',
+      classes: [1, 2, 3],
+    },
+    {
+      id: isGrade3 ? 'software' : 'ai-sw',
+      name: isGrade3 ? '컴퓨터소프트웨어과' : 'AI소프트웨어과',
+      codeName: isGrade3 ? '컴퓨터소프트웨어과' : 'AI소프트웨어과',
+      description: isGrade3
+        ? '디지털 논리 회로, 물리학Ⅰ, 프로그래밍 언어 활용 및 응용 소프트웨어 개발 (3학년 4~5반)'
+        : '프로그래밍 언어 응용, 컴퓨터 구조, 인공지능 기초 및 SW 코딩 (1·2학년 4~5반)',
+      classes: [4, 5],
+    },
+    {
+      id: 'content',
+      name: '스마트콘텐츠과',
+      codeName: '스마트콘텐츠과',
+      description: '소셜미디어 영상·음향제작, 3D 애니메이팅, 게임 콘텐츠 제작 및 e스포츠 윤리 (6~8반)',
+      classes: [6, 7, 8],
+    },
+    {
+      id: 'design',
+      name: '산업디자인과',
+      codeName: '산업디자인과',
+      description: '비주얼 아이데이션 전개, 애니메이션 기초 및 최종 디자인 실무 (9~10반)',
+      classes: [9, 10],
+    },
+  ];
+}
+
+/**
+ * 학년 및 반 번호 기준 정확한 학과 반환
+ */
+export function getDepartment(grade: number, classNum: number): Department {
+  const depts = getDepartmentsForGrade(grade);
+  return depts.find((d) => d.classes.includes(classNum)) || depts[0];
+}
 
 // NEIS hisTimetable API 응답 구조
 export interface NeisTimetableRow {

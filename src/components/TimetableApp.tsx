@@ -24,6 +24,8 @@ import {
   PERIOD_SLOTS,
   SavedClassSetting,
   TimetableItem,
+  getDepartment,
+  getDepartmentsForGrade,
 } from '../types/timetable';
 import {
   fetchNeisMeal,
@@ -73,8 +75,9 @@ export const TimetableApp: React.FC<TimetableAppProps> = ({
   const [tempMemoText, setTempMemoText] = useState('');
   const [copyToast, setCopyToast] = useState(false);
 
-  // 현재 학과 추론
-  const currentDept = DAEJIN_DEPARTMENTS.find((d) => d.classes.includes(selectedClass)) || DAEJIN_DEPARTMENTS[0];
+  // 현재 학과 추론 (3학년 4~5반: 컴퓨터소프트웨어과, 1·2학년 4~5반: AI소프트웨어과)
+  const currentDept = getDepartment(selectedGrade, selectedClass);
+  const departmentsForGrade = getDepartmentsForGrade(selectedGrade);
 
   // 실시간 시계 타이머 (1초 간격 갱신)
   useEffect(() => {
@@ -361,10 +364,10 @@ export const TimetableApp: React.FC<TimetableAppProps> = ({
         {/* 4 Official Departments Tabs */}
         <div>
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-            대진전자통신고 4대 학과:
+            대진전자통신고 {selectedGrade}학년 학과:
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {DAEJIN_DEPARTMENTS.map((dept) => {
+            {departmentsForGrade.map((dept) => {
               const isDeptActive = dept.classes.includes(selectedClass);
               return (
                 <button
@@ -400,13 +403,13 @@ export const TimetableApp: React.FC<TimetableAppProps> = ({
               학급(반) 선택 (1~10반):
             </span>
             <span className="text-xs text-slate-500">
-              현재: <strong className="text-sky-800 font-bold">{currentDept.name}</strong> ({selectedClass}반)
+              현재: <strong className="text-sky-800 font-bold">{currentDept.name}</strong> ({selectedGrade}학년 {selectedClass}반)
             </span>
           </div>
 
           <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5 sm:gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((c) => {
-              const dept = DAEJIN_DEPARTMENTS.find((d) => d.classes.includes(c));
+              const dept = getDepartment(selectedGrade, c);
               const isSelected = selectedClass === c;
               return (
                 <button
@@ -433,7 +436,7 @@ export const TimetableApp: React.FC<TimetableAppProps> = ({
                       )}
                   </div>
                   <div className="text-[10px] text-slate-500 truncate mt-0.5 font-medium">
-                    {dept?.name.replace('과', '') || '일반'}
+                    {dept.name.replace('과', '')}
                   </div>
                 </button>
               );

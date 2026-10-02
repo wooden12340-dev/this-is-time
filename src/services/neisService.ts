@@ -163,7 +163,7 @@ const DAEJIN_CURRICULUM: MasterCurriculum = {
   },
   // 3학년 (심화 실습/캡스톤/취업)
   3: {
-    1: {
+    1: { // 3학년 1반 (전기전자과)
       1: [
         { subject: '전자응용기기개발', classroom: '제1프로젝트실 (본관 5층)', teacher: '양선생', category: '전공실습' },
         { subject: '전자응용기기개발', classroom: '제1프로젝트실 (본관 5층)', teacher: '양선생', category: '전공실습' },
@@ -172,6 +172,17 @@ const DAEJIN_CURRICULUM: MasterCurriculum = {
         { subject: '스마트가전 제어', classroom: '스마트가전실 (실습동 201호)', teacher: '홍선생', category: '전공실습' },
         { subject: '스마트가전 제어', classroom: '스마트가전실 (실습동 201호)', teacher: '홍선생', category: '전공실습' },
         { subject: '직업윤리', classroom: '3학년 1반', teacher: '담임교사', category: '자율/창체' },
+      ],
+    },
+    4: { // 3학년 4반 (컴퓨터소프트웨어과)
+      1: [
+        { subject: '디지털 논리 회로', classroom: 'SW코딩랩 (정보관 201호)', teacher: '정선생', category: '전공실습' },
+        { subject: '디지털 논리 회로', classroom: 'SW코딩랩 (정보관 201호)', teacher: '정선생', category: '전공실습' },
+        { subject: '물리학Ⅰ', classroom: '3학년 4반', teacher: '이선생', category: '일반교과' },
+        { subject: '응용 소프트웨어 개발', classroom: '프로젝트실습실 (정보관 203호)', teacher: '고선생', category: '전공실습' },
+        { subject: '응용 소프트웨어 개발', classroom: '프로젝트실습실 (정보관 203호)', teacher: '고선생', category: '전공실습' },
+        { subject: '실용영어', classroom: '3학년 4반', teacher: '표선생', category: '일반교과' },
+        { subject: '진로활동', classroom: '3학년 4반', teacher: '담임교사', category: '자율/창체' },
       ],
     },
   },
@@ -304,14 +315,14 @@ export function getFallbackTimetable(
   const gradeData = DAEJIN_CURRICULUM[grade] || DAEJIN_CURRICULUM[2];
   let classData = gradeData[classNum];
   if (!classData) {
-    if (classNum >= 1 && classNum <= 3 && gradeData[2]) {
-      classData = gradeData[2]; // 전기전자과 (1~3반)
-    } else if (classNum >= 4 && classNum <= 5 && gradeData[4]) {
-      classData = gradeData[4]; // AI소프트웨어과 (4~5반)
-    } else if (classNum >= 6 && classNum <= 8 && gradeData[6]) {
-      classData = gradeData[6]; // 스마트콘텐츠과 (6~8반)
-    } else if (classNum >= 9 && classNum <= 10 && gradeData[10]) {
-      classData = gradeData[10]; // 산업디자인과 (9~10반)
+    if (classNum >= 1 && classNum <= 3) {
+      classData = gradeData[1] || gradeData[2]; // 전기전자과 (1~3반)
+    } else if (classNum >= 4 && classNum <= 5) {
+      classData = gradeData[4]; // AI소프트웨어과(1·2학년) / 컴퓨터소프트웨어과(3학년) (4~5반)
+    } else if (classNum >= 6 && classNum <= 8) {
+      classData = gradeData[6] || gradeData[4]; // 스마트콘텐츠과 (6~8반)
+    } else if (classNum >= 9 && classNum <= 10) {
+      classData = gradeData[10] || gradeData[4]; // 산업디자인과 (9~10반)
     } else {
       classData = gradeData[Object.keys(gradeData)[0] as unknown as number];
     }
