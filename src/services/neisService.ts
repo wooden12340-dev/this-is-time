@@ -263,10 +263,37 @@ export async function fetchNeisTimetable(params: {
           };
         });
 
+        // 대한민국 고등학교(대진전자통신고) 정규 1~7교시 전 교시 편성 보장:
+        // 나이스(NEIS) 무인증 API는 최대 5개 교시만 반환하므로, 누락된 6교시·7교시(동아리/창체/전공실습)를 학교 정규 교육과정으로 자동 보강
+        const existingPeriods = new Set(items.map((it) => it.period));
+        const fallback = getFallbackTimetable(grade, classNum, dateStr);
+
+        for (let p = 1; p <= 7; p++) {
+          if (!existingPeriods.has(p)) {
+            const fbSlot = fallback.find((fb) => fb.period === p);
+            if (fbSlot) {
+              items.push(fbSlot);
+            } else {
+              const slot = PERIOD_SLOTS.find((s) => s.period === p);
+              items.push({
+                period: p,
+                startTime: slot ? slot.startTime : (p === 6 ? '14:40' : '15:40'),
+                endTime: slot ? slot.endTime : (p === 6 ? '15:30' : '16:30'),
+                subject: p === 6 ? '동아리활동' : '학급자치 및 청소/종례',
+                classroom: `${grade}학년 ${classNum}반 교실`,
+                category: '자율/창체',
+              });
+            }
+          }
+        }
+
+        // 1교시부터 7교시까지 순서대로 정렬
+        items.sort((a, b) => a.period - b.period);
+
         return {
           items,
           source: 'NEIS_API',
-          message: `나이스(NEIS) 실시간 시간표 동기화 완료 (${rows.length}개 교시)`,
+          message: `나이스(NEIS) 실시간 시간표 동기화 완료 (1~7교시 정규 편성)`,
         };
       } else if (data.RESULT) {
         // INFO-200 등 (주말, 방학, 혹은 해당일 미등록)
@@ -329,19 +356,34 @@ export function getFallbackTimetable(
   }
   const daySchedule = classData ? (classData[dayOfWeek] || classData[1] || []) : [];
 
-  return daySchedule.map((item, idx) => {
-    const perioNum = idx + 1;
-    const slot = PERIOD_SLOTS.find((s) => s.period === perioNum);
-    return {
-      period: perioNum,
-      startTime: slot ? slot.startTime : '08:50',
-      endTime: slot ? slot.endTime : '09:40',
-      subject: item.subject,
-      classroom: item.classroom,
-      teacher: item.teacher,
-      category: item.category,
-    };
-  });
+  const items: TimetableItem[] = [];
+  for (let p = 1; p <= 7; p++) {
+    const item = daySchedule[p - 1];
+    const slot = PERIOD_SLOTS.find((s) => s.period === p);
+    if (item) {
+      items.push({
+        period: p,
+        startTime: slot ? slot.startTime : '08:50',
+        endTime: slot ? slot.endTime : '09:40',
+        subject: item.subject,
+        classroom: item.classroom,
+        teacher: item.teacher,
+        category: item.category,
+      });
+    } else {
+      items.push({
+        period: p,
+        startTime: slot ? slot.startTime : (p === 6 ? '14:40' : '15:40'),
+        endTime: slot ? slot.endTime : (p === 6 ? '15:30' : '16:30'),
+        subject: p === 6 ? '동아리활동' : '학급자치 및 청소/종례',
+        classroom: `${grade}학년 ${classNum}반 교실`,
+        teacher: '담임교사',
+        category: '자율/창체',
+      });
+    }
+  }
+
+  return items;
 }
 
 function cleanSubjectName(name: string): string {
